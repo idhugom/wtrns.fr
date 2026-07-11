@@ -167,7 +167,8 @@ const marqueeItems = ['Guides qui pettent', 'Zéro blabla', 'Tableaux clairs', '
     .u-underline::after { content: ""; position: absolute; left: 0; right: 0; bottom: -.08em; height: .28em; background: var(--lime); z-index: -1; transform: skewX(-8deg); }
     .hl-cyan { background: var(--cyan); padding: 0 .12em; border-radius: 4px; }
 
-    .bento { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.4rem; }
+    .bento { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.4rem; align-items: start; }
+    .bento :global(.card) { height: auto; }
     .grid-cards { display: grid; grid-template-columns: 1fr; gap: 1.4rem; }
     @media (min-width: 560px) { .grid-cards { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 960px) {
