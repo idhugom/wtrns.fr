@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import PostCard from '../components/PostCard.astro';
 import Marquee from '../components/Marquee.astro';
 import { allPosts, publishedPosts, topicsSummary, readingTime } from '../lib/posts.js';
-import { imgSrc, ONERR } from '../lib/img.js';
+import Thumb from '../components/Thumb.astro';
 
 const topics = topicsSummary();
 const pool = (publishedPosts.length ? publishedPosts : allPosts);
@@ -48,7 +48,7 @@ const marqueeItems = ['Guides qui pettent', 'Zéro blabla', 'Tableaux clairs', '
         {featured[0] && (
           <a href={featured[0].href} class="hero__card" aria-hidden="true" tabindex="-1">
             <div class="hero__card-media">
-              <img src={imgSrc(featured[0])} alt="" loading="eager" width="600" height="400" onerror={ONERR} />
+              <Thumb post={featured[0]} eager={true} w={600} h={400} />
               <span class="sticker hero__sticker">à la une 🔥</span>
             </div>
             <div class="hero__card-body">

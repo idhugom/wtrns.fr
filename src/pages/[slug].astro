@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import PostCard from '../components/PostCard.astro';
 import '../styles/article.css';
 import { allPosts, getPost, getContent, relatedPosts, readingTime } from '../lib/posts.js';
-import { imgSrc, ONERR } from '../lib/img.js';
+import Thumb from '../components/Thumb.astro';
 
 export function getStaticPaths() {
   return allPosts.map((p) => ({ params: { slug: p.slug } }));
@@ -12,8 +12,7 @@ export function getStaticPaths() {
 const { slug } = Astro.params;
 const post = getPost(slug);
 const content = getContent(slug);
-const img = imgSrc(post);
-const hasImg = !!(post.localImage || post.image);
+const hasImg = !!post.image;
 
 /* ---------- process html: ids on h2, table scroll wrappers, toc ---------- */
 function slugify(s) {
@@ -61,7 +60,7 @@ const jsonld = {
       '@type': 'Article',
       headline: post.title,
       description: desc,
-      image: hasImg ? new URL(post.localImage || post.image, 'https://wtrns.fr').href : 'https://wtrns.fr/og-default.png',
+      image: post.localImage ? new URL(post.localImage, 'https://wtrns.fr').href : 'https://wtrns.fr/og-default.png',
       datePublished: post.date,
       dateModified: post.modified || post.date,
       author: { '@type': 'Organization', name: 'WTRNS' },
@@ -83,7 +82,7 @@ const jsonld = {
   ],
 };
 ---
-<Base title={`${post.title} — WTRNS`} description={desc} image={img} type="article" canonical={`https://wtrns.fr/${slug}`}>
+<Base title={`${post.title} — WTRNS`} description={desc} image={post.localImage || '/og-default.png'} type="article" canonical={`https://wtrns.fr/${slug}`}>
   <article class="art">
     <!-- HERO -->
     <header class="art__hero">
@@ -104,7 +103,7 @@ const jsonld = {
       {hasImg && (
         <div class="wrap">
           <div class="art__cover">
-            <img src={img} alt={post.image_alt || post.title} width="1200" height="640" fetchpriority="high" onerror={ONERR} />
+            <Thumb post={post} eager={true} w={1200} h={640} />
           </div>
         </div>
       )}
@@ -170,7 +169,7 @@ const jsonld = {
     .art__title { font-size: clamp(2rem, 5.5vw, 4rem); max-width: 20ch; }
     .art__meta { display: flex; gap: .6rem; flex-wrap: wrap; color: #555; margin-top: 1rem; }
     .art__meta .sep { color: var(--pink); }
-    .art__cover { margin-top: 1.8rem; border: var(--bd-thick) solid var(--ink); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-lg); aspect-ratio: 40/21; }
+    .art__cover { position: relative; margin-top: 1.8rem; border: var(--bd-thick) solid var(--ink); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-lg); aspect-ratio: 40/21; }
     .art__cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .art__layout { display: grid; grid-template-columns: 1fr; gap: 2.5rem; margin-top: 2.5rem; align-items: start; }

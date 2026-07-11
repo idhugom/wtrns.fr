@@ -1,13 +1,12 @@
 ---
-import { imgSrc, ONERR } from '../lib/img.js';
+import Thumb from './Thumb.astro';
 const { post, delay = 0, featured = false } = Astro.props;
-const img = imgSrc(post);
 const badgeClass = `badge--${post.color === 'orange' || post.color === 'violet' ? 'pink' : post.color}`;
 ---
 <a href={post.href} class={`card ${featured ? 'card--featured' : ''}`} data-reveal data-delay={delay}>
   <div class="card__media">
     <span class={`badge ${badgeClass} card__badge`}>{post.topicLabel}</span>
-    <img src={img} alt={post.image_alt || post.title} loading="lazy" decoding="async" width="600" height="400" onerror={ONERR} />
+    <Thumb post={post} w={600} h={400} />
   </div>
   <div class="card__body">
     <h3 class="card__title">{post.title}</h3>

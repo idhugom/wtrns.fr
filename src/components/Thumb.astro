@@ -1,0 +1,16 @@
+---
+/* Renders the local featured image if present, otherwise a branded,
+   topic-coloured placeholder. Never references the (unreliable) remote URL. */
+const { post, eager = false, w = 600, h = 400 } = Astro.props;
+const src = post.localImage; // local path or null
+---
+{src ? (
+  <img src={src} alt={post.image_alt || post.title} loading={eager ? 'eager' : 'lazy'} decoding="async" width={w} height={h} />
+) : (
+  <div class={`imgph c-${post.color}`} role="img" aria-label={post.image_alt || post.title}>
+    <svg class="imgph__mark" viewBox="0 0 64 64" aria-hidden="true">
+      <path d="M12 18 L22 48 L32 28 L42 48 L52 18" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="imgph__tag">{post.topicLabel}</span>
+  </div>
+)}
