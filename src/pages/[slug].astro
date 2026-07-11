@@ -1,0 +1,220 @@
+---
+import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import '../styles/article.css';
+import { allPosts, getPost, getContent, relatedPosts, readingTime } from '../lib/posts.js';
+import { imgSrc, ONERR } from '../lib/img.js';
+
+export function getStaticPaths() {
+  return allPosts.map((p) => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+const post = getPost(slug);
+const content = getContent(slug);
+const img = imgSrc(post);
+const hasImg = !!(post.localImage || post.image);
+
+/* ---------- process html: ids on h2, table scroll wrappers, toc ---------- */
+function slugify(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 60);
+}
+let toc = [];
+let html = content?.html || '';
+if (html) {
+  const seen = new Set();
+  html = html.replace(/<h2(\s[^>]*)?>([\s\S]*?)<\/h2>/g, (m, attrs, inner) => {
+    const text = inner.replace(/<[^>]+>/g, '').trim();
+    let id = slugify(text) || 'section';
+    let base = id, n = 2; while (seen.has(id)) id = `${base}-${n++}`;
+    seen.add(id);
+    // skip FAQ heading inside toc? keep it.
+    toc.push({ id, text });
+    return `<h2 id="${id}"${attrs || ''}>${inner}</h2>`;
+  });
+  // wrap tables for horizontal scroll
+  html = html.replace(/<table>/g, '<div class="table-scroll"><table>').replace(/<\/table>/g, '</table></div>');
+}
+
+/* ---------- FAQ extraction for JSON-LD ---------- */
+const faq = [];
+if (html) {
+  const re = /<details>\s*<summary>([\s\S]*?)<\/summary>([\s\S]*?)<\/details>/g;
+  let m;
+  while ((m = re.exec(html))) {
+    const q = m[1].replace(/<[^>]+>/g, '').trim();
+    const a = m[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (q && a) faq.push({ q, a });
+  }
+}
+
+const related = relatedPosts(post, 3).map((p) => ({ ...p, reading: readingTime(p.slug) }));
+const rt = content?.reading_time_min || readingTime(slug);
+const desc = content?.meta_description || post.excerpt || `${post.title} — le guide complet WTRNS.`;
+const dateStr = post.date ? new Date(post.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+
+const jsonld = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Article',
+      headline: post.title,
+      description: desc,
+      image: hasImg ? new URL(post.localImage || post.image, 'https://wtrns.fr').href : 'https://wtrns.fr/og-default.png',
+      datePublished: post.date,
+      dateModified: post.modified || post.date,
+      author: { '@type': 'Organization', name: 'WTRNS' },
+      publisher: { '@type': 'Organization', name: 'WTRNS' },
+      mainEntityOfPage: `https://wtrns.fr/${slug}`,
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Accueil', item: 'https://wtrns.fr/' },
+        { '@type': 'ListItem', position: 2, name: post.topicLabel, item: `https://wtrns.fr/theme/${post.topic}` },
+        { '@type': 'ListItem', position: 3, name: post.title, item: `https://wtrns.fr/${slug}` },
+      ],
+    },
+    ...(faq.length ? [{
+      '@type': 'FAQPage',
+      mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+    }] : []),
+  ],
+};
+---
+<Base title={`${post.title} — WTRNS`} description={desc} image={img} type="article" canonical={`https://wtrns.fr/${slug}`}>
+  <article class="art">
+    <!-- HERO -->
+    <header class="art__hero">
+      <div class="wrap art__hero-inner">
+        <nav class="crumbs mono" aria-label="Fil d’Ariane">
+          <a href="/">Accueil</a><span>/</span>
+          <a href={`/theme/${post.topic}`}>{post.topicLabel}</a><span>/</span>
+          <span class="crumbs__cur">Guide</span>
+        </nav>
+        <span class={`badge badge--${post.color === 'orange' || post.color === 'violet' ? 'pink' : post.color} art__topic`}>{post.topicLabel}</span>
+        <h1 class="art__title">{post.title}</h1>
+        <div class="art__meta mono">
+          <span>{rt} min de lecture</span>
+          {dateStr && <><span class="sep">·</span><span>Mis à jour le {dateStr}</span></>}
+          <span class="sep">·</span><span>Par la rédac WTRNS</span>
+        </div>
+      </div>
+      {hasImg && (
+        <div class="wrap">
+          <div class="art__cover">
+            <img src={img} alt={post.image_alt || post.title} width="1200" height="640" fetchpriority="high" onerror={ONERR} />
+          </div>
+        </div>
+      )}
+    </header>
+
+    <!-- BODY + TOC -->
+    <div class="wrap art__layout">
+      <aside class="art__toc" aria-label="Sommaire">
+        <div class="toc">
+          <p class="toc__title mono">Sommaire</p>
+          <nav>
+            <ol>
+              {toc.map((t) => <li><a href={`#${t.id}`}>{t.text}</a></li>)}
+            </ol>
+          </nav>
+          <a href="#top" class="toc__top mono">↑ Haut de page</a>
+        </div>
+      </aside>
+
+      <div class="art__content">
+        {html
+          ? <div class="prose" set:html={html} />
+          : (
+            <div class="prose">
+              <div class="wip">
+                <span class="sticker">✍️ en cours</span>
+                <h2>Ce guide est en cours de rédaction premium</h2>
+                <p>Notre rédaction réécrit entièrement ce contenu pour qu’il soit le plus complet du web sur « {post.title} ». Reviens très vite&nbsp;!</p>
+                {post.excerpt && <p><em>{post.excerpt}</em></p>}
+                <a class="btn btn--lime" href="/articles">Voir les guides déjà publiés →</a>
+              </div>
+            </div>
+          )}
+
+        <!-- share / cta -->
+        <div class="art__cta">
+          <p class="eyebrow">Ce guide t’a aidé&nbsp;?</p>
+          <h3>Explore les autres guides qui pettent.</h3>
+          <a href="/articles" class="btn btn--pink">Tous les guides →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- RELATED -->
+    {related.length > 0 && (
+      <section class="art__related wrap-wide">
+        <h2 data-reveal>À lire aussi <span class="u-underline">dans {post.topicLabel}</span></h2>
+        <div class="grid-cards">
+          {related.map((p, i) => <PostCard post={p} delay={i % 3} />)}
+        </div>
+      </section>
+    )}
+  </article>
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />
+
+  <style>
+    .art__hero { padding-top: 1.6rem; }
+    .crumbs { display: flex; gap: .5rem; align-items: center; color: #555; margin-bottom: 1rem; flex-wrap: wrap; }
+    .crumbs a { color: #555; text-decoration: none; } .crumbs a:hover { color: var(--ink); text-decoration: underline; }
+    .crumbs span.crumbs__cur { color: var(--ink); }
+    .art__topic { margin-bottom: 1rem; }
+    .art__title { font-size: clamp(2rem, 5.5vw, 4rem); max-width: 20ch; }
+    .art__meta { display: flex; gap: .6rem; flex-wrap: wrap; color: #555; margin-top: 1rem; }
+    .art__meta .sep { color: var(--pink); }
+    .art__cover { margin-top: 1.8rem; border: var(--bd-thick) solid var(--ink); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-lg); aspect-ratio: 40/21; }
+    .art__cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .art__layout { display: grid; grid-template-columns: 1fr; gap: 2.5rem; margin-top: 2.5rem; align-items: start; }
+    .art__toc { display: none; }
+    .toc { position: sticky; top: 96px; border: var(--bd) solid var(--ink); border-radius: var(--radius); background: var(--white); box-shadow: var(--shadow-sm); padding: 1.1rem 1.2rem; }
+    .toc__title { color: var(--pink); margin-bottom: .7rem; }
+    .toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; display: flex; flex-direction: column; gap: .1rem; }
+    .toc li { counter-increment: toc; }
+    .toc a { display: block; text-decoration: none; color: #333; font-size: .92rem; padding: .35rem .4rem .35rem 1.7rem; border-radius: 6px; position: relative; line-height: 1.25; transition: background .12s ease, color .12s ease; }
+    .toc a::before { content: counter(toc, decimal-leading-zero); position: absolute; left: .35rem; top: .4rem; font-family: var(--font-mono); font-size: .66rem; color: var(--violet); font-weight: 700; }
+    .toc a:hover, .toc a.is-active { background: var(--lime); color: var(--ink); }
+    .toc__top { display: inline-block; margin-top: .8rem; color: #666; text-decoration: none; }
+
+    .art__content { min-width: 0; max-width: 76ch; }
+    .wip { text-align: center; padding: 2rem 0; display: flex; flex-direction: column; gap: 1rem; align-items: center; }
+
+    .art__cta { margin-top: 3rem; padding: 1.8rem; background: var(--ink); color: var(--paper); border-radius: var(--radius); text-align: center; }
+    .art__cta .eyebrow { color: var(--lime); }
+    .art__cta h3 { color: var(--paper); margin: .3rem 0 1.2rem; }
+
+    .art__related { margin-top: 4rem; }
+    .art__related h2 { margin-bottom: 2rem; }
+
+    @media (min-width: 1000px) {
+      .art__layout { grid-template-columns: 260px 1fr; }
+      .art__toc { display: block; }
+    }
+  </style>
+
+  <script>
+    // active TOC highlight
+    const links = [...document.querySelectorAll('.toc a[href^="#"]')];
+    const map = new Map();
+    links.forEach((l) => { const id = l.getAttribute('href').slice(1); const el = document.getElementById(id); if (el) map.set(el, l); });
+    if (map.size) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove('is-active'));
+            map.get(e.target)?.classList.add('is-active');
+          }
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      map.forEach((_, el) => obs.observe(el));
+    }
+  </script>
+</Base>

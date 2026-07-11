@@ -1,0 +1,69 @@
+---
+import { topicsSummary } from '../lib/posts.js';
+const topics = topicsSummary();
+const year = 2026;
+---
+<footer class="ftr">
+  <div class="ftr__cta wrap">
+    <div class="ftr__cta-box" data-reveal>
+      <p class="eyebrow">Newsletter · zéro spam</p>
+      <h2>Reçois les guides qui <span class="hl">pettent</span> avant tout le monde.</h2>
+      <form class="ftr__form" onsubmit="return false" aria-label="Inscription newsletter">
+        <input type="email" required placeholder="ton@email.fr" aria-label="Email" />
+        <button class="btn btn--pink" type="submit">Je m’abonne</button>
+      </form>
+      <p class="ftr__smallprint mono">On t’écrit seulement quand ça vaut le coup.</p>
+    </div>
+  </div>
+
+  <div class="ftr__main wrap-wide">
+    <div class="ftr__brand">
+      <a href="/" class="ftr__logo">WTRNS<span>.</span></a>
+      <p>Le magazine qui transforme n’importe quel sujet en guide clair, complet et actionnable. Ça informe, ça pétte.</p>
+    </div>
+    <nav class="ftr__col" aria-label="Thématiques">
+      <h3 class="mono">Thématiques</h3>
+      {topics.slice(0, 8).map((t) => <a href={`/theme/${t.key}`}>{t.label} <span>{t.count}</span></a>)}
+    </nav>
+    <nav class="ftr__col" aria-label="Le site">
+      <h3 class="mono">Le site</h3>
+      <a href="/articles">Tous les guides</a>
+      <a href="/a-propos">À propos</a>
+      <a href="/rss.xml">Flux RSS</a>
+      <a href="/sitemap-index.xml">Plan du site</a>
+    </nav>
+  </div>
+
+  <div class="ftr__bottom wrap-wide">
+    <span class="mono">© {year} WTRNS — tous droits réservés</span>
+    <span class="mono ftr__made">Fait avec <span class="beat">♥</span> &amp; beaucoup de café</span>
+  </div>
+</footer>
+
+<style>
+  .ftr { margin-top: 6rem; background: var(--ink); color: var(--paper); border-top: var(--bd-thick) solid var(--ink); }
+  .ftr__cta { transform: translateY(-3rem); }
+  .ftr__cta-box { background: var(--violet); color: var(--white); border: var(--bd-thick) solid var(--ink); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: clamp(1.6rem, 4vw, 3rem); }
+  .ftr__cta-box .eyebrow { color: var(--lime); }
+  .ftr__cta-box h2 { font-size: clamp(1.6rem, 4vw, 2.8rem); color: var(--white); }
+  .hl { background: var(--lime); color: var(--ink); padding: 0 .15em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+  .ftr__form { display: flex; gap: .7rem; flex-wrap: wrap; margin-top: 1.2rem; }
+  .ftr__form input { flex: 1; min-width: 220px; font-family: var(--font-body); font-size: 1rem; padding: .8em 1em; border: var(--bd) solid var(--ink); border-radius: var(--radius-sm); background: var(--white); color: var(--ink); }
+  .ftr__smallprint { margin: .9rem 0 0; opacity: .8; color: var(--white); }
+
+  .ftr__main { display: grid; grid-template-columns: 1fr; gap: 2.4rem; padding-block: 1rem 3rem; }
+  .ftr__brand p { color: rgba(251,246,234,.72); max-width: 34ch; }
+  .ftr__logo { font-family: var(--font-display); font-weight: 900; font-size: 2rem; color: var(--paper); text-decoration: none; letter-spacing: -.04em; }
+  .ftr__logo span { color: var(--pink); }
+  .ftr__col { display: flex; flex-direction: column; gap: .55rem; }
+  .ftr__col h3 { color: var(--cyan); margin-bottom: .4rem; }
+  .ftr__col a { color: rgba(251,246,234,.82); text-decoration: none; display: flex; justify-content: space-between; gap: 1rem; max-width: 260px; padding: .15rem 0; transition: color .15s ease, transform .15s ease; }
+  .ftr__col a span { font-family: var(--font-mono); font-size: .72rem; opacity: .55; }
+  .ftr__col a:hover { color: var(--lime); transform: translateX(4px); }
+
+  .ftr__bottom { display: flex; flex-wrap: wrap; gap: .8rem; justify-content: space-between; align-items: center; padding-block: 1.4rem 2rem; border-top: 2px solid rgba(251,246,234,.16); color: rgba(251,246,234,.6); }
+  .beat { color: var(--pink); display: inline-block; animation: beat 1.2s ease infinite; }
+  @keyframes beat { 0%,100%{transform:scale(1)} 30%{transform:scale(1.35)} }
+
+  @media (min-width: 760px) { .ftr__main { grid-template-columns: 2fr 1fr 1fr; } }
+</style>

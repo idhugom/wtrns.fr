@@ -1,0 +1,217 @@
+---
+import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import Marquee from '../components/Marquee.astro';
+import { allPosts, publishedPosts, topicsSummary, readingTime } from '../lib/posts.js';
+import { imgSrc, ONERR } from '../lib/img.js';
+
+const topics = topicsSummary();
+const pool = (publishedPosts.length ? publishedPosts : allPosts);
+const featured = pool.slice(0, 7).map(p => ({ ...p, reading: readingTime(p.slug) }));
+const fresh = pool.slice(7, 19).map(p => ({ ...p, reading: readingTime(p.slug) }));
+const total = allPosts.length;
+const rotating = ['assurance', 'cuisine', 'moto', 'déco', 'impression', 'immobilier', 'santé', 'business'];
+const marqueeItems = ['Guides qui pettent', 'Zéro blabla', 'Tableaux clairs', 'FAQ béton', '100% actionnable', 'Ça informe'];
+---
+<Base title="WTRNS — le mag qui pétte" description="661 guides ultra-complets, sans blabla, sur l’assurance, la cuisine, la moto, la déco, l’impression et plus. Des tableaux, des FAQ, du concret. Ça pétte.">
+  <!-- ===================== HERO ===================== -->
+  <section class="hero">
+    <div class="hero__blob hero__blob--1" aria-hidden="true"></div>
+    <div class="hero__blob hero__blob--2" aria-hidden="true"></div>
+
+    <div class="hero__grid wrap-wide">
+      <div class="hero__left">
+        <p class="eyebrow hero__eyebrow"><span class="dot"></span> Le magazine no-bullshit · {total} guides</p>
+        <h1 class="hero__title">
+          Tout savoir sur
+          <span class="rotator" data-rotator>
+            {rotating.map((w, i) => <span class:list={["rotator__w", i === 0 && "is-live"]}>{w}</span>)}
+          </span>
+          <span class="hero__title-end">sans le blabla.</span>
+        </h1>
+        <p class="hero__lead">
+          Des guides <strong>ultra-complets</strong> qui répondent vraiment à ta question :
+          tableaux comparatifs, encadrés, FAQ et étapes concrètes. On creuse, on trie, ça pétte.
+        </p>
+        <div class="hero__actions">
+          <a href="/articles" class="btn btn--lime">Explorer les guides →</a>
+          <a href="#themes" class="btn btn--ink">Par thématique</a>
+        </div>
+        <div class="hero__stats">
+          <div><b>{total}</b><span class="mono">guides</span></div>
+          <div><b>{topics.length}</b><span class="mono">thématiques</span></div>
+          <div><b>100%</b><span class="mono">actionnable</span></div>
+        </div>
+      </div>
+
+      <div class="hero__right" aria-hidden="true">
+        {featured[0] && (
+          <a href={featured[0].href} class="hero__card" aria-hidden="true" tabindex="-1">
+            <div class="hero__card-media">
+              <img src={imgSrc(featured[0])} alt="" loading="eager" width="600" height="400" onerror={ONERR} />
+              <span class="sticker hero__sticker">à la une 🔥</span>
+            </div>
+            <div class="hero__card-body">
+              <span class={`badge badge--${featured[0].color === 'orange' ? 'yellow' : 'lime'}`}>{featured[0].topicLabel}</span>
+              <h3>{featured[0].title}</h3>
+            </div>
+          </a>
+        )}
+        <div class="hero__chip hero__chip--1">✦ tableaux</div>
+        <div class="hero__chip hero__chip--2">FAQ ✚</div>
+        <div class="hero__chip hero__chip--3">↯ concret</div>
+      </div>
+    </div>
+  </section>
+
+  <Marquee items={marqueeItems} color="lime" speed={30} />
+
+  <!-- ===================== FEATURED ===================== -->
+  <section class="block wrap-wide">
+    <div class="block__head">
+      <h2 data-reveal>À dévorer <span class="u-underline">en priorité</span></h2>
+      <a href="/articles" class="block__more mono" data-reveal>tout voir →</a>
+    </div>
+    <div class="bento">
+      {featured.slice(1, 7).map((p, i) => (
+        <PostCard post={p} delay={(i % 4)} featured={i === 0} />
+      ))}
+    </div>
+  </section>
+
+  <!-- ===================== THEMES ===================== -->
+  <section id="themes" class="themes">
+    <div class="wrap-wide">
+      <h2 data-reveal>Choisis ton <span class="hl-cyan">terrain de jeu</span></h2>
+      <div class="themes__grid">
+        {topics.map((t, i) => (
+          <a href={`/theme/${t.key}`} class={`theme-tile c-${t.color}`} data-reveal data-delay={i % 4}>
+            <span class="theme-tile__count mono">{String(t.count).padStart(2,'0')}</span>
+            <span class="theme-tile__label">{t.label}</span>
+            <span class="theme-tile__arrow" aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MANIFESTO ===================== -->
+  <section class="manifesto wrap">
+    <div class="manifesto__box" data-reveal>
+      <p class="eyebrow">La méthode WTRNS</p>
+      <div class="manifesto__rows">
+        <div class="manifesto__row"><span class="num">01</span><p><b>On répond à la vraie question.</b> Chaque guide couvre l’intention de recherche de A à Z, pas juste la surface.</p></div>
+        <div class="manifesto__row"><span class="num">02</span><p><b>On rend ça lisible.</b> Tableaux comparatifs, encadrés « à retenir », FAQ : l’info se trouve en 3 secondes.</p></div>
+        <div class="manifesto__row"><span class="num">03</span><p><b>On passe à l’action.</b> Des étapes concrètes, des critères de choix, des exemples. Tu repars avec une décision.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== LATEST ===================== -->
+  <section class="block wrap-wide">
+    <div class="block__head">
+      <h2 data-reveal>Fraîchement <span class="u-underline">publiés</span></h2>
+      <a href="/articles" class="block__more mono" data-reveal>tous les guides →</a>
+    </div>
+    <div class="grid-cards">
+      {fresh.map((p, i) => <PostCard post={p} delay={i % 4} />)}
+    </div>
+    <div class="block__foot" data-reveal>
+      <a href="/articles" class="btn btn--violet">Voir les {total} guides →</a>
+    </div>
+  </section>
+
+  <style>
+    /* ---------- HERO ---------- */
+    .hero { position: relative; overflow: hidden; padding-block: clamp(2.5rem, 7vw, 6rem) clamp(2rem, 5vw, 4rem); }
+    .hero__grid { display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: center; position: relative; z-index: 2; }
+    .hero__eyebrow { display: inline-flex; align-items: center; gap: .5rem; background: var(--white); border: 2px solid var(--ink); padding: .4em .8em; border-radius: 999px; }
+    .hero__eyebrow .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--pink); animation: blink 1.2s steps(1) infinite; }
+    .hero__title { margin: 1.1rem 0 .6rem; }
+    .hero__title-end { display: block; }
+    .rotator { display: inline-grid; vertical-align: bottom; }
+    .rotator__w { grid-area: 1/1; opacity: 0; transform: translateY(40%) rotate(-3deg); color: var(--pink); background: var(--lime); padding: 0 .12em; border: 3px solid var(--ink); box-shadow: var(--shadow-sm); border-radius: 6px; transition: opacity .4s ease, transform .4s cubic-bezier(.2,.7,.2,1); }
+    .rotator__w.is-live { opacity: 1; transform: none; }
+    .hero__lead { font-size: clamp(1.05rem, 1.6vw, 1.28rem); max-width: 46ch; color: #2b2b26; }
+    .hero__actions { display: flex; gap: .8rem; flex-wrap: wrap; margin: 1.6rem 0; }
+    .hero__stats { display: flex; gap: 2rem; margin-top: 1.4rem; flex-wrap: wrap; }
+    .hero__stats div { display: flex; flex-direction: column; }
+    .hero__stats b { font-family: var(--font-display); font-size: 2rem; line-height: 1; }
+    .hero__stats .mono { color: #555; }
+
+    .hero__right { position: relative; display: none; min-height: 440px; }
+    .hero__card { position: relative; display: block; width: 100%; max-width: 420px; margin-inline: auto; background: var(--white); border: var(--bd-thick) solid var(--ink); border-radius: var(--radius); box-shadow: var(--shadow-lg); transform: rotate(2.2deg); overflow: hidden; text-decoration: none; color: var(--ink); transition: transform .3s ease; }
+    .hero__card:hover { transform: rotate(0) translateY(-4px); }
+    .hero__card-media { position: relative; aspect-ratio: 16/11; border-bottom: var(--bd) solid var(--ink); overflow: hidden; }
+    .hero__card-media img { width: 100%; height: 100%; object-fit: cover; }
+    .hero__sticker { position: absolute; bottom: -14px; left: 14px; }
+    .hero__card-body { padding: 1rem 1.1rem 1.3rem; display: flex; flex-direction: column; gap: .6rem; }
+    .hero__card-body h3 { font-size: 1.3rem; }
+    .hero__chip { position: absolute; font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: .85rem; padding: .5em .9em; border: 3px solid var(--ink); border-radius: 999px; box-shadow: var(--shadow-sm); animation: float 5s ease-in-out infinite; }
+    .hero__chip--1 { top: 4%; right: 2%; background: var(--cyan); animation-delay: .1s; }
+    .hero__chip--2 { bottom: 16%; right: -2%; background: var(--yellow); animation-delay: .8s; }
+    .hero__chip--3 { top: 44%; left: -4%; background: var(--pink); color: #fff; animation-delay: 1.4s; }
+    @keyframes float { 0%,100%{ transform: translateY(0) rotate(-2deg);} 50%{ transform: translateY(-12px) rotate(3deg);} }
+
+    .hero__blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .5; z-index: 1; }
+    .hero__blob--1 { width: 460px; height: 460px; background: var(--cyan); top: -160px; right: -120px; animation: drift 18s ease-in-out infinite; }
+    .hero__blob--2 { width: 380px; height: 380px; background: var(--pink); bottom: -180px; left: -100px; animation: drift 22s ease-in-out infinite reverse; }
+    @keyframes drift { 0%,100%{ transform: translate(0,0) scale(1);} 50%{ transform: translate(40px,-30px) scale(1.15);} }
+
+    /* ---------- BLOCKS ---------- */
+    .block { padding-block: clamp(2.5rem, 6vw, 4.5rem); }
+    .block__head { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .block__more { text-decoration: none; color: var(--ink); border-bottom: 2px solid var(--ink); padding-bottom: 2px; }
+    .block__foot { display: flex; justify-content: center; margin-top: 2.5rem; }
+    .u-underline { position: relative; white-space: nowrap; }
+    .u-underline::after { content: ""; position: absolute; left: 0; right: 0; bottom: -.08em; height: .28em; background: var(--lime); z-index: -1; transform: skewX(-8deg); }
+    .hl-cyan { background: var(--cyan); padding: 0 .12em; border-radius: 4px; }
+
+    .bento { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.4rem; }
+    .grid-cards { display: grid; grid-template-columns: 1fr; gap: 1.4rem; }
+    @media (min-width: 560px) { .grid-cards { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 960px) {
+      .bento { grid-template-columns: repeat(3, 1fr); }
+      .grid-cards { grid-template-columns: repeat(3, 1fr); }
+      .hero__grid { grid-template-columns: 1.15fr .85fr; }
+      .hero__right { display: block; }
+    }
+    @media (min-width: 1200px) { .grid-cards { grid-template-columns: repeat(4, 1fr); } }
+
+    /* ---------- THEMES ---------- */
+    .themes { padding-block: clamp(2.5rem, 6vw, 4.5rem); background: var(--ink); color: var(--paper); border-block: var(--bd-thick) solid var(--ink); }
+    .themes h2 { color: var(--paper); margin-bottom: 2rem; }
+    .themes__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .theme-tile { position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 150px; padding: 1.1rem; border: var(--bd) solid var(--ink); border-radius: var(--radius); box-shadow: 5px 5px 0 rgba(0,0,0,.5); text-decoration: none; color: var(--ink); transition: transform .16s ease, box-shadow .16s ease; overflow: hidden; }
+    .theme-tile:hover { transform: translate(-4px,-4px); box-shadow: 9px 9px 0 rgba(0,0,0,.55); }
+    .theme-tile__count { font-size: 1.4rem; font-weight: 700; opacity: .55; }
+    .theme-tile__label { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; line-height: 1.02; }
+    .theme-tile__arrow { position: absolute; right: 1rem; bottom: 1rem; font-family: var(--font-display); font-weight: 900; font-size: 1.5rem; transition: transform .16s ease; }
+    .theme-tile:hover .theme-tile__arrow { transform: translateX(6px); }
+    @media (min-width: 640px) { .themes__grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1000px) { .themes__grid { grid-template-columns: repeat(4, 1fr); } }
+
+    /* ---------- MANIFESTO ---------- */
+    .manifesto { padding-block: clamp(2.5rem, 6vw, 4.5rem); }
+    .manifesto__box { background: var(--yellow); border: var(--bd-thick) solid var(--ink); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: clamp(1.6rem, 4vw, 3rem); }
+    .manifesto__rows { display: grid; gap: 1.4rem; margin-top: 1.4rem; }
+    .manifesto__row { display: flex; gap: 1.2rem; align-items: start; }
+    .manifesto__row .num { font-family: var(--font-display); font-weight: 900; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1; color: var(--ink); -webkit-text-stroke: 2px var(--ink); color: transparent; flex: none; }
+    .manifesto__row p { font-size: 1.1rem; margin: 0; }
+    @media (min-width: 800px) { .manifesto__rows { grid-template-columns: repeat(3, 1fr); } }
+  </style>
+
+  <script>
+    // rotating hero word
+    const rot = document.querySelector('[data-rotator]');
+    if (rot) {
+      const words = [...rot.querySelectorAll('.rotator__w')];
+      let i = 0;
+      setInterval(() => {
+        words[i].classList.remove('is-live');
+        i = (i + 1) % words.length;
+        words[i].classList.add('is-live');
+      }, 1800);
+    }
+  </script>
+</Base>

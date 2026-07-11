@@ -1,0 +1,15 @@
+---
+const { items = [], color = 'lime', speed = 32 } = Astro.props;
+const doubled = [...items, ...items];
+---
+<div class={`marquee c-${color}`} style={`--speed:${speed}s`}>
+  <div class="marquee__track">
+    {doubled.map((it) => (
+      <span class="marquee__item">{it}<span class="marquee__star">✦</span></span>
+    ))}
+  </div>
+</div>
+<style>
+  .marquee { padding-block: .5rem; }
+  .marquee__track { animation-duration: var(--speed); }
+</style>

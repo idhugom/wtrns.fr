@@ -1,0 +1,112 @@
+---
+import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import { allPosts, topicsSummary, readingTime } from '../lib/posts.js';
+
+const topics = topicsSummary();
+const posts = allPosts.map((p) => ({ ...p, reading: readingTime(p.slug) }));
+const INITIAL = 24;
+---
+<Base title="Tous les guides — WTRNS" description="Parcours les 661 guides WTRNS : assurance, cuisine, moto, déco, impression, immobilier… Filtre par thème, cherche, trouve ta réponse.">
+  <section class="idx-hero">
+    <div class="wrap-wide">
+      <p class="eyebrow" data-reveal><span class="dot"></span> La bibliothèque complète</p>
+      <h1 data-reveal>Tous les <span class="hl">guides</span>.</h1>
+      <p class="idx-lead" data-reveal>{posts.length} guides, {topics.length} thématiques. Cherche, filtre, dévore.</p>
+
+      <div class="idx-tools" data-reveal>
+        <div class="idx-search">
+          <span aria-hidden="true">🔎</span>
+          <input type="search" id="q" placeholder="Chercher un guide… (ex. assurance, magret, moto)" aria-label="Rechercher" autocomplete="off" />
+        </div>
+        <div class="idx-filters" role="tablist" aria-label="Filtrer par thématique">
+          <button class="pill is-on" data-topic="all">Tout <span>{posts.length}</span></button>
+          {topics.map((t) => (
+            <button class={`pill c-${t.color}`} data-topic={t.key}>{t.label} <span>{t.count}</span></button>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap-wide idx-list">
+    <p class="idx-count mono" id="count" aria-live="polite"></p>
+    <div class="grid-cards" id="grid">
+      {posts.map((p, i) => (
+        <div class="idx-item" data-topic={p.topic} data-title={(p.title + ' ' + p.slug).toLowerCase()} data-i={i} style={i >= INITIAL ? 'display:none' : ''}>
+          <PostCard post={p} delay={i % 4} />
+        </div>
+      ))}
+    </div>
+    <div class="idx-empty" id="empty" hidden>
+      <span class="sticker">🤔 rien trouvé</span>
+      <p>Aucun guide ne correspond. Essaie un autre mot-clé ou réinitialise les filtres.</p>
+    </div>
+    <div class="block__foot"><button class="btn btn--violet" id="more">Afficher plus →</button></div>
+  </section>
+
+  <style>
+    .idx-hero { padding-block: clamp(2rem, 5vw, 3.5rem) 1rem; }
+    .idx-hero h1 { font-size: clamp(2.6rem, 8vw, 5.5rem); }
+    .eyebrow .dot { display:inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--pink); margin-right: .4rem; }
+    .hl { background: var(--lime); padding: 0 .1em; border: 3px solid var(--ink); border-radius: 8px; box-shadow: var(--shadow-sm); }
+    .idx-lead { font-size: 1.15rem; color: #444; margin-top: .6rem; }
+
+    .idx-tools { margin-top: 1.8rem; display: flex; flex-direction: column; gap: 1rem; }
+    .idx-search { display: flex; align-items: center; gap: .6rem; background: var(--white); border: var(--bd) solid var(--ink); border-radius: 999px; padding: .3rem .3rem .3rem 1.1rem; box-shadow: var(--shadow-sm); max-width: 560px; }
+    .idx-search input { border: 0; outline: 0; background: transparent; font-family: var(--font-body); font-size: 1.05rem; padding: .6rem .4rem; width: 100%; }
+    .idx-filters { display: flex; gap: .55rem; flex-wrap: wrap; }
+    .pill { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .04em; font-size: .72rem; font-weight: 700; padding: .5em .9em; border: var(--bd) solid var(--ink); border-radius: 999px; background: var(--white); cursor: pointer; box-shadow: 2px 2px 0 var(--ink); transition: transform .12s ease, box-shadow .12s ease; display: inline-flex; gap: .4em; align-items: center; }
+    .pill span { opacity: .5; }
+    .pill:hover { transform: translate(-2px,-2px); box-shadow: 4px 4px 0 var(--ink); }
+    .pill.is-on { background: var(--ink); color: var(--paper); }
+    .pill.is-on span { opacity: .7; }
+
+    .idx-list { padding-block: 2rem 3rem; }
+    .idx-count { color: #666; margin-bottom: 1.2rem; }
+    .idx-empty { text-align: center; padding: 3rem 0; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+    .idx-item { display: block; }
+  </style>
+
+  <script>
+    const q = document.getElementById('q');
+    const grid = document.getElementById('grid');
+    const items = [...grid.querySelectorAll('.idx-item')];
+    const pills = [...document.querySelectorAll('.pill')];
+    const countEl = document.getElementById('count');
+    const emptyEl = document.getElementById('empty');
+    const moreBtn = document.getElementById('more');
+    const STEP = 24;
+    let topic = 'all';
+    let term = '';
+    let limit = 24;
+
+    function matches(el) {
+      const okTopic = topic === 'all' || el.dataset.topic === topic;
+      const okTerm = !term || el.dataset.title.includes(term);
+      return okTopic && okTerm;
+    }
+    function apply(resetLimit) {
+      if (resetLimit) limit = STEP;
+      let shown = 0, total = 0;
+      for (const el of items) {
+        const m = matches(el);
+        if (m) { total++; if (shown < limit) { el.style.display = ''; shown++; } else el.style.display = 'none'; }
+        else el.style.display = 'none';
+      }
+      countEl.textContent = `${total} guide${total > 1 ? 's' : ''}`;
+      emptyEl.hidden = total !== 0;
+      moreBtn.style.display = shown < total ? '' : 'none';
+      // re-observe newly shown for reveal
+      document.querySelectorAll('[data-reveal]:not(.in)').forEach((n) => n.classList.add('in'));
+    }
+    q.addEventListener('input', () => { term = q.value.trim().toLowerCase(); apply(true); });
+    pills.forEach((p) => p.addEventListener('click', () => {
+      pills.forEach((x) => x.classList.remove('is-on'));
+      p.classList.add('is-on');
+      topic = p.dataset.topic; apply(true);
+    }));
+    moreBtn.addEventListener('click', () => { limit += STEP; apply(false); });
+    apply(false);
+  </script>
+</Base>

@@ -1,0 +1,97 @@
+---
+import { topicsSummary } from '../lib/posts.js';
+const topics = topicsSummary().slice(0, 6);
+---
+<header class="hdr" data-header>
+  <div class="hdr__inner wrap-wide">
+    <a href="/" class="logo" aria-label="WTRNS — accueil">
+      <span class="logo__mark">W</span>
+      <span class="logo__word">TRNS</span>
+      <span class="logo__dot"></span>
+    </a>
+
+    <nav class="hdr__nav" aria-label="Thématiques">
+      {topics.map((t) => (
+        <a href={`/theme/${t.key}`} class={`hdr__link c-${t.color}`}>{t.label}</a>
+      ))}
+    </nav>
+
+    <div class="hdr__right">
+      <a href="/articles" class="hdr__all mono">Tous&nbsp;les&nbsp;guides</a>
+      <a href="/articles" class="btn btn--ink hdr__cta">Explorer&nbsp;→</a>
+      <button class="burger" aria-label="Menu" data-burger><span></span><span></span><span></span></button>
+    </div>
+  </div>
+
+  <div class="hdr__drawer" data-drawer>
+    <nav class="hdr__drawer-nav" aria-label="Menu mobile">
+      <a href="/">Accueil</a>
+      <a href="/articles">Tous les guides</a>
+      {topics.map((t) => <a href={`/theme/${t.key}`}>{t.label}</a>)}
+    </nav>
+  </div>
+</header>
+
+<style>
+  .hdr {
+    position: sticky; top: 0; z-index: 200;
+    background: var(--paper);
+    border-bottom: var(--bd-thick) solid var(--ink);
+    transition: transform .3s cubic-bezier(.2,.7,.2,1), box-shadow .2s ease;
+  }
+  .hdr.is-stuck { box-shadow: 0 6px 0 rgba(11,11,11,.12); }
+  .hdr.is-hidden { transform: translateY(-104%); }
+  .hdr__inner { display: flex; align-items: center; gap: 1rem; height: 72px; }
+
+  .logo { display: inline-flex; align-items: center; gap: 1px; text-decoration: none; font-family: var(--font-display); font-weight: 900; font-size: 1.5rem; letter-spacing: -.04em; color: var(--ink); }
+  .logo__mark {
+    display: grid; place-items: center;
+    width: 38px; height: 38px; margin-right: 6px;
+    background: var(--lime); border: var(--bd) solid var(--ink); border-radius: 9px;
+    box-shadow: 3px 3px 0 var(--ink); transform: rotate(-4deg);
+    font-size: 1.4rem;
+  }
+  .logo__word { }
+  .logo__dot { width: 10px; height: 10px; margin-left: 4px; background: var(--pink); border-radius: 50%; border: 2px solid var(--ink); animation: blink 1.4s steps(1) infinite; }
+  @keyframes blink { 50% { background: var(--cyan); } }
+
+  .hdr__nav { display: none; gap: .5rem; margin-inline: auto; }
+  .hdr__link {
+    font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .04em;
+    font-size: .7rem; font-weight: 700; text-decoration: none; color: var(--ink);
+    padding: .4em .7em; border: 2px solid transparent; border-radius: 999px;
+    transition: transform .12s ease, border-color .12s ease;
+    white-space: nowrap;
+  }
+  .hdr__link:hover { border-color: var(--ink); transform: translateY(-2px); }
+
+  .hdr__right { display: flex; align-items: center; gap: .8rem; margin-left: auto; }
+  .hdr__all { display: none; text-decoration: none; color: var(--ink); }
+  .hdr__all:hover { text-decoration: underline; }
+  .hdr__cta { display: none; padding: .5em 1em; font-size: .85rem; }
+
+  .burger { display: inline-flex; flex-direction: column; gap: 5px; width: 46px; height: 40px; align-items: center; justify-content: center; background: var(--white); border: var(--bd) solid var(--ink); border-radius: 8px; box-shadow: var(--shadow-sm); cursor: pointer; }
+  .burger span { width: 22px; height: 3px; background: var(--ink); border-radius: 2px; transition: transform .2s ease, opacity .2s ease; }
+  .burger.is-open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+  .burger.is-open span:nth-child(2) { opacity: 0; }
+  .burger.is-open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+  .hdr__drawer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; border-top: 0; }
+  .hdr__drawer.is-open { grid-template-rows: 1fr; border-top: var(--bd) solid var(--ink); }
+  .hdr__drawer-nav { overflow: hidden; display: flex; flex-direction: column; }
+  .hdr__drawer-nav a { padding: .9rem var(--gutter); font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; text-decoration: none; color: var(--ink); border-bottom: 2px solid rgba(11,11,11,.1); }
+  .hdr__drawer-nav a:hover { background: var(--lime); }
+
+  @media (min-width: 700px) { .hdr__all { display: inline; } }
+  @media (min-width: 1080px) {
+    .hdr__nav { display: flex; }
+    .burger { display: none; }
+    .hdr__cta { display: inline-flex; }
+  }
+</style>
+
+<script>
+  const b = document.querySelector('[data-burger]');
+  const d = document.querySelector('[data-drawer]');
+  b?.addEventListener('click', () => { b.classList.toggle('is-open'); d?.classList.toggle('is-open'); });
+</script>

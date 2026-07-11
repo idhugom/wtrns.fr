@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+# logs & working files (not needed for build)
+data/*.log
+data/batch_input.jsonl
+data/preview.log
+npm-debug.log*
+.DS_Store
+.env

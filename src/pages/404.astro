@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="404 — page introuvable · WTRNS" description="Cette page n’existe pas (ou plus). Reviens à l’accueil ou explore les guides." noindex={true}>
+  <section class="nf wrap">
+    <span class="sticker nf__sticker">oups 🫠</span>
+    <h1 class="nf__code">404</h1>
+    <p class="nf__msg">Cette page a filé. Mais on a 660+ guides qui, eux, sont bien là.</p>
+    <div class="nf__actions">
+      <a href="/" class="btn btn--lime">Retour à l’accueil</a>
+      <a href="/articles" class="btn btn--ink">Explorer les guides →</a>
+    </div>
+  </section>
+  <style>
+    .nf { min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 1rem; padding-block: 4rem; }
+    .nf__sticker { transform: rotate(-6deg); }
+    .nf__code { font-size: clamp(6rem, 24vw, 16rem); line-height: .8; -webkit-text-stroke: 4px var(--ink); color: var(--lime); }
+    .nf__msg { font-size: 1.25rem; max-width: 40ch; }
+    .nf__actions { display: flex; gap: .8rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem; }
+  </style>
+</Base>

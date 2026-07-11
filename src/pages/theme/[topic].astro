@@ -1,0 +1,48 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import { allPosts, topicsSummary, readingTime } from '../../lib/posts.js';
+
+export function getStaticPaths() {
+  return topicsSummary().map((t) => ({ params: { topic: t.key }, props: { topic: t } }));
+}
+const { topic } = Astro.props;
+const posts = allPosts.filter((p) => p.topic === topic.key).map((p) => ({ ...p, reading: readingTime(p.slug) }));
+const others = topicsSummary().filter((t) => t.key !== topic.key);
+---
+<Base title={`${topic.label} — WTRNS`} description={`Tous nos guides ${topic.label.toLowerCase()} : complets, clairs et actionnables. ${posts.length} articles à explorer sur WTRNS.`}>
+  <section class={`th-hero c-${topic.color}`}>
+    <div class="wrap-wide">
+      <nav class="crumbs mono"><a href="/">Accueil</a><span>/</span><span>{topic.label}</span></nav>
+      <p class="eyebrow" data-reveal>{String(posts.length).padStart(2,'0')} guides · thématique</p>
+      <h1 data-reveal>{topic.label}</h1>
+    </div>
+    <div class="th-hero__edge" aria-hidden="true"></div>
+  </section>
+
+  <section class="th-nav">
+    <div class="wrap-wide th-nav__row">
+      <a href="/articles" class="pill">← Tous les guides</a>
+      {others.map((t) => <a href={`/theme/${t.key}`} class={`pill c-${t.color}`}>{t.label}</a>)}
+    </div>
+  </section>
+
+  <section class="wrap-wide th-list">
+    <div class="grid-cards">
+      {posts.map((p, i) => <PostCard post={p} delay={i % 4} />)}
+    </div>
+  </section>
+
+  <style>
+    .th-hero { position: relative; border-bottom: var(--bd-thick) solid var(--ink); padding-block: clamp(2.5rem, 6vw, 4.5rem); overflow: hidden; }
+    .th-hero .crumbs { margin-bottom: 1rem; }
+    .th-hero .crumbs a { color: var(--ink); text-decoration: none; }
+    .th-hero h1 { font-size: clamp(2.6rem, 8vw, 6rem); }
+    .th-nav { border-bottom: 3px solid var(--ink); background: var(--paper); position: sticky; top: 71px; z-index: 100; }
+    .th-nav__row { display: flex; gap: .5rem; overflow-x: auto; padding-block: .8rem; scrollbar-width: none; }
+    .th-nav__row::-webkit-scrollbar { display: none; }
+    .pill { flex: none; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .04em; font-size: .7rem; font-weight: 700; padding: .5em .9em; border: var(--bd) solid var(--ink); border-radius: 999px; background: var(--white); text-decoration: none; color: var(--ink); box-shadow: 2px 2px 0 var(--ink); white-space: nowrap; transition: transform .12s ease; }
+    .pill:hover { transform: translateY(-2px); }
+    .th-list { padding-block: 2.5rem 3rem; }
+  </style>
+</Base>

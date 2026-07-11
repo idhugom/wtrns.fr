@@ -1,0 +1,106 @@
+---
+import '@fontsource-variable/archivo';
+import '@fontsource-variable/space-grotesk';
+import '@fontsource/space-mono/400.css';
+import '@fontsource/space-mono/700.css';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const {
+  title = 'WTRNS — le mag qui pétte',
+  description = 'WTRNS : des guides ultra-complets, sans blabla, sur l’assurance, la cuisine, la déco, la moto, l’impression et bien plus. Ça pétte, ça informe.',
+  image = '/og-default.png',
+  canonical,
+  type = 'website',
+  noindex = false,
+} = Astro.props;
+
+const site = 'https://wtrns.fr';
+const url = canonical || new URL(Astro.url.pathname, site).href;
+const ogImage = image?.startsWith('http') ? image : new URL(image, site).href;
+---
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={url} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="WTRNS" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <meta name="theme-color" content="#C8F84A" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="WTRNS" href="/rss.xml" />
+  </head>
+  <body>
+    <a href="#main" class="skip">Aller au contenu</a>
+    <div class="cursor" aria-hidden="true"></div>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      // ---- scroll reveal ----
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        }
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+      const observe = () => document.querySelectorAll('[data-reveal]:not(.in)').forEach((el) => io.observe(el));
+      observe();
+
+      // ---- custom cursor blob (pointer devices only) ----
+      const cursor = document.querySelector('.cursor');
+      if (cursor && matchMedia('(pointer:fine)').matches) {
+        let x = innerWidth / 2, y = innerHeight / 2, tx = x, ty = y;
+        addEventListener('pointermove', (e) => { tx = e.clientX; ty = e.clientY; }, { passive: true });
+        const loop = () => { x += (tx - x) * 0.18; y += (ty - y) * 0.18; cursor.style.transform = `translate(${x}px,${y}px)`; requestAnimationFrame(loop); };
+        loop();
+        const hot = 'a,button,.card,.btn,summary,[data-hot]';
+        addEventListener('pointerover', (e) => { if (e.target.closest(hot)) cursor.classList.add('cursor--big'); });
+        addEventListener('pointerout', (e) => { if (e.target.closest(hot)) cursor.classList.remove('cursor--big'); });
+      }
+
+      // ---- header hide/show on scroll ----
+      let last = 0;
+      const header = document.querySelector('[data-header]');
+      addEventListener('scroll', () => {
+        const y = scrollY;
+        if (header) {
+          header.classList.toggle('is-stuck', y > 40);
+          if (y > last && y > 260) header.classList.add('is-hidden');
+          else header.classList.remove('is-hidden');
+        }
+        last = y;
+      }, { passive: true });
+    </script>
+
+    <style is:global>
+      .cursor {
+        position: fixed; top: 0; left: 0; z-index: 9998;
+        width: 18px; height: 18px; margin: -9px 0 0 -9px;
+        background: var(--pink); border: 2px solid var(--ink); border-radius: 50%;
+        pointer-events: none; mix-blend-mode: multiply;
+        transition: width .18s ease, height .18s ease, background .2s ease;
+      }
+      .cursor--big { width: 46px; height: 46px; margin: -23px 0 0 -23px; background: var(--lime); }
+      @media (pointer: coarse) { .cursor { display: none; } }
+    </style>
+  </body>
+</html>
