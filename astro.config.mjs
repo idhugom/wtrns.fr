@@ -5,7 +5,9 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://wtrns.fr',
   integrations: [sitemap()],
+  trailingSlash: 'never',
   build: {
+    format: 'file',
     inlineStylesheets: 'auto',
   },
   compressHTML: true,
