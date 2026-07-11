@@ -1,0 +1,15 @@
+import { chromium } from 'playwright-core';
+import { readFileSync } from 'node:fs';
+const exe=readFileSync('/tmp/claude-0/-home-user-wtrns-fr/38328e0c-204b-5a29-b40f-0e926a4d459e/scratchpad/chrome_path.txt','utf8').trim();
+const O='/tmp/claude-0/-home-user-wtrns-fr/38328e0c-204b-5a29-b40f-0e926a4d459e/scratchpad';
+const b=await chromium.launch({executablePath:exe,args:['--no-sandbox']});
+const p=await b.newPage({viewport:{width:1440,height:2300}});
+await p.goto('http://localhost:4321/',{waitUntil:'load',timeout:20000}).catch(e=>console.log('goto',e.message));
+await p.waitForTimeout(1000);
+await p.evaluate(async()=>{await new Promise(r=>{let y=0;const t=()=>{y+=450;scrollTo(0,y);if(y<2900)setTimeout(t,70);else r()};t()})});
+await p.waitForTimeout(1200);
+await p.evaluate(()=>scrollTo(0,560));
+await p.waitForTimeout(1000);
+await p.screenshot({path:`${O}/live-home.png`});
+console.log('shot');
+await b.close();
