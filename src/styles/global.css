@@ -222,3 +222,14 @@ section { position: relative; }
   font-size: .66rem; font-weight: 700; color: var(--ink);
   background: var(--white); border: 2px solid var(--ink); border-radius: 999px; padding: .25em .6em;
 }
+
+/* ---------- shared layout utilities (used across pages) ---------- */
+.grid-cards { display: grid; grid-template-columns: 1fr; gap: 1.4rem; }
+@media (min-width: 560px)  { .grid-cards { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 960px)  { .grid-cards { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1200px) { .grid-cards { grid-template-columns: repeat(4, 1fr); } }
+
+.u-underline { position: relative; white-space: nowrap; }
+.u-underline::after { content: ""; position: absolute; left: 0; right: 0; bottom: -.08em; height: .28em; background: var(--lime); z-index: -1; transform: skewX(-8deg); }
+
+.block__foot { display: flex; justify-content: center; margin-top: 2.5rem; }
