@@ -8,3 +8,4 @@ data/preview.log
 npm-debug.log*
 .DS_Store
 .env
+scripts/__pycache__/
