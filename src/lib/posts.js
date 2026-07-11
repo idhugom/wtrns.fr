@@ -15,25 +15,27 @@ const localImgSet = new Set(imgManifest); // slugs that have /img/posts/<slug>.j
 /* ---------- topic clusters (derived from slug/title) ---------- */
 const TOPICS = [
   { key: 'assurance', label: 'Assurance & Finance', color: 'violet',
-    re: /assurance|mutuelle|credit|crédit|pret|prêt|emprunteur|bourquin|lemoine|banque|hamon|resiliation|résiliation|epargne|épargne|placement|impot|impôt|fiscal|retraite|prevoyance|prévoyance|juridique/i },
+    re: /\bassur|\bmutuelle|\bcredit|\bemprunt|\bbanqu|\bbancaire|\bepargne|\bimpot|\bfiscal|\bretraite|\bprevoyance|\bjuridique|\bjuriste|\bavocat|\bnotaire|bourquin|lemoine|hamon|\bresiliation|\bplacement|\bpatrimoine|\bprets?\b|\bfinanc|\bcotisation|\bsinistre|\bassureur/ },
   { key: 'cuisine', label: 'Cuisine & Recettes', color: 'orange',
-    re: /recette|magret|canard|cuisine|plat|dessert|gateau|gâteau|sauce|poulet|boeuf|bœuf|vin|fromage|chocolat|apero|apéro|cocktail|patisserie|pâtisserie|repas|marinade|four|cuisson|culinaire|gastronom/i },
+    re: /\brecette|\bmagret|\bcanard|\bcuisin|\bculinaire|\bplats?\b|\bdessert|\bgateau|\bsauce|\bpoulet|\bboeuf|\bagneau|\bvins?\b|\bfromage|\bchocolat|\bapero|\baperitif|\bcocktail|\bpatiss|\brepas|\bmarinade|\bmariner|\bfour\b|\bcuisson|\bgastronom|\bconfit/ },
   { key: 'moto', label: 'Moto & Mobilité', color: 'cyan',
-    re: /moto|scooter|casque|deux-roues|permis|voiture|auto|velo|vélo|trottinette|conduite|location.*(moto|voiture|vehicule|véhicule)|road.?trip|circuit/i },
+    re: /\bmoto|\bscooter|\bcasque|deux-roues|\bpermis|\bvoiture|\bauto\b|\bautomobile|\bvelos?\b|\btrottinette|\bconduite|\bconduire|\bcircuit|road.?trip|\bpneu|\bmobylette|\bcylindr/ },
   { key: 'deco', label: 'Déco & Lifestyle', color: 'pink',
-    re: /deco|déco|osier|liege|liège|scandinave|meuble|interieur|intérieur|salon|chambre|jardin|bijou|collier|sac|mode|tendance|design|cadeau|artisan|bois|rangement|luminaire|potager|plante/i },
+    re: /\bdecor|\bosier|\bliege|\bscandinave|\bmeuble|\bmobilier|\binterieur|\bsalon\b|\bchambre|\bjardin|\bbijou|\bcollier|\bsacs?\b|\bmode\b|\btendance|\bdesign|\bcadeau|\bartisan|\bbois\b|\brangement|\bluminaire|\bpotager|\bplantes?\b|\bcoussin|\brideau|\btapis\b|\bceramique/ },
   { key: 'impression', label: 'Impression & Print', color: 'lime',
-    re: /impress|imprim|sticker|flyer|affiche|carte.*visite|packaging|etiquette|étiquette|vitrine|enseigne|serigraphie|sérigraphie|brochure|papeterie|kakemono|banderole/i },
+    re: /\bimprim|\bimpress|\bsticker|\bflyer|\baffiche|carte.*visite|\bpackaging|\betiquette|\bvitrine|\benseigne|\bserigraph|\bbrochure|\bpapeterie|\bkakemono|\bbanderole|\bgravure/ },
   { key: 'immobilier', label: 'Immobilier & Habitat', color: 'yellow',
-    re: /immobili|panneau.*solaire|solaire|maison|appartement|location.*(saison|meuble)|logement|travaux|renovation|rénovation|isolation|chauffage|toiture|bailleur|locataire|dpe|annonce.*immo/i },
+    re: /\bimmobili|\bsolaire|\bpanneau|\bmaison|\bappartement|\blogement|\btravaux|\brenovation|\bisolation|\bchauffage|\btoiture|\btoit\b|\bbailleur|\blocataire|\bdpe\b|location.*(saison|meubl)|\bparcelle|\bterrain|\bhabitat|\bplomberie|\bphotovolta/ },
   { key: 'sante', label: 'Santé & Bien-être', color: 'cyan',
-    re: /sante|santé|bien-etre|bien-être|medecin|médecin|dentaire|osteo|ostéo|sport|fitness|nutrition|sommeil|stress|beaute|beauté|soin|cosmetique|cosmétique|meditation|méditation|pilates|yoga/i },
+    re: /\bsante\b|bien-etre|\bmedecin|\bdentaire|\bdentiste|\bosteo|\bsport|\bfitness|\bnutrition|\bsommeil|\bstress|\bbeaute|\bsoins?\b|\bcosmetique|\bmeditation|\bpilates|\byoga|\bmassage|\bcheveux|\bcapillaire|\bmusculation|\bcomplement/ },
   { key: 'digital', label: 'Digital & Business', color: 'violet',
-    re: /site.*web|seo|referencement|référencement|marketing|entreprise|business|startup|logiciel|application|crm|ecommerce|e-commerce|reseau|réseau|communication|freelance|auto-entrepreneur|disque.*dur|onduleur|donnee|donnée/i },
+    re: /site.*web|\bseo\b|\breferencement|\bmarketing|\bentreprise|\bbusiness|\bstartup|\blogiciel|\bapplication|\bcrm\b|\becommerce|e-commerce|\bfreelance|auto-entrepreneur|\btelesecretariat|\bteletravail|disque.*dur|\bonduleur|\bdonnees?\b|\bordinateur|\binformatique|\bnumerique|smartphone/ },
 ];
 
+const normTopic = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
 function topicFor(post) {
-  const hay = `${post.slug} ${post.title}`;
+  const hay = normTopic(`${post.slug} ${post.title}`);
   for (const t of TOPICS) if (t.re.test(hay)) return t;
   const colors = ['lime', 'pink', 'cyan', 'violet', 'yellow', 'orange'];
   let h = 0; for (const c of post.slug) h = (h * 31 + c.charCodeAt(0)) >>> 0;
