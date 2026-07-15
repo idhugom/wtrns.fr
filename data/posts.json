@@ -1,5 +1,25 @@
 [
  {
+  "id": 2386,
+  "slug": "depot-garantie-non-restitue-proprietaire-delai-recours",
+  "title": "Dépôt de garantie non restitué par le propriétaire : délais légaux et recours du locataire pour se faire rembourser",
+  "date": "2026-07-15T09:00:00",
+  "modified": "2026-07-15T09:00:00",
+  "excerpt": "Le propriétaire ne rend pas votre caution ? Délai légal de 1 ou 2 mois, pénalité de 10 % par mois de retard, retenues justifiées et démarches pour récupérer votre dépôt de garantie.",
+  "image": "https://wtrns.fr/img/posts/depot-garantie-non-restitue-proprietaire-delai-recours.jpg",
+  "image_alt": "Remise des clés entre un locataire qui déménage et son propriétaire, cartons et état des lieux en arrière-plan"
+ },
+ {
+  "id": 2387,
+  "slug": "controle-technique-refuse-defaillance-majeure-contre-visite",
+  "title": "Contrôle technique refusé pour défaillance majeure sur ma voiture : délai de contre-visite et solutions",
+  "date": "2026-07-15T09:00:00",
+  "modified": "2026-07-15T09:00:00",
+  "excerpt": "Contrôle technique défavorable pour défaillance majeure : vous avez 2 mois pour la contre-visite, le droit de circuler en attendant, et les pièges qui imposent de tout repasser.",
+  "image": "https://wtrns.fr/img/posts/controle-technique-refuse-defaillance-majeure-contre-visite.jpg",
+  "image_alt": "Technicien automobile inspectant le dessous d'une voiture sur pont élévateur dans un centre de contrôle technique"
+ },
+ {
   "id": 2385,
   "slug": "facture-auto-entrepreneur-franchise-en-base-tva-mentions-obligatoires",
   "title": "Facture auto-entrepreneur en franchise en base de TVA : quelles mentions obligatoires ?",
